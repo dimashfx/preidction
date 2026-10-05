@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LSP Election Simulator</title>
+<style>
+:root{--bg:#f2f6fc;--card:#fff;--ink:#14213d;--mute:#6b7a96;--line:#e3eaf5;--chip:#f4f7fc;--anel:#F85A40;--inko:#037EF3;--karim:#0CB9C1;--und:#94a3bd;--sh:0 10px 30px rgba(3,70,160,.09);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1424;--card:#142238;--ink:#eaf1ff;--mute:#93a4c0;--line:#243653;--chip:#1b2c47;--und:#6f7f99;--sh:0 10px 30px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#0b1424;--card:#142238;--ink:#eaf1ff;--mute:#93a4c0;--line:#243653;--chip:#1b2c47;--und:#6f7f99;--sh:0 10px 30px rgba(0,0,0,.35)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Lato,"Segoe UI",Helvetica,Arial,sans-serif;padding:16px;max-width:1320px;margin-inline:auto}
+.top{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:24px 28px;margin-bottom:14px;border-radius:28px;color:#fff;background:linear-gradient(135deg,#037EF3,#0A4FC9);box-shadow:0 14px 34px rgba(3,126,243,.35);animation:rise .6s cubic-bezier(.2,.8,.2,1)}
+.top::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 92% 0,rgba(255,200,69,.45),transparent 38%),radial-gradient(circle at 70% 120%,rgba(12,185,193,.5),transparent 40%)}
+.top>*{position:relative}
+h1{font-size:clamp(22px,4vw,34px);font-weight:900;margin:0;letter-spacing:-.5px}
+.sub{opacity:.85;font-size:14px;margin-top:2px}
+.leader{padding:13px 24px;border-radius:999px;font-weight:900;font-size:clamp(14px,2.4vw,20px);color:#fff;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.55);backdrop-filter:blur(6px);transition:background .4s,transform .3s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.stat{background:var(--card);border-radius:20px;padding:12px 18px;font-size:12px;color:var(--mute);box-shadow:var(--sh);font-weight:700}
+.stat b{display:block;font-size:clamp(20px,3.4vw,28px);color:var(--ink);font-weight:900}
+.tiles{display:grid;gap:12px;margin-bottom:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.tile{background:var(--card);border:2px solid transparent;border-radius:22px;padding:14px 18px;box-shadow:var(--sh);transition:border-color .35s,transform .35s,box-shadow .35s}
+.tile.win{border-color:var(--c);transform:translateY(-3px);box-shadow:0 12px 30px color-mix(in srgb,var(--c) 35%,transparent)}
+.tile.win .row span:first-child::after{content:" 👑"}
+.tile .row{display:flex;justify-content:space-between;gap:8px;font-weight:900;color:var(--c)}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);margin-right:8px}
+.bar{height:12px;background:var(--chip);border-radius:12px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--c),color-mix(in srgb,var(--c) 60%,#fff));border-radius:12px;width:0;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+button{font:inherit;font-weight:800;font-size:13px;padding:10px 18px;border-radius:999px;border:0;background:var(--card);color:var(--ink);cursor:pointer;box-shadow:var(--sh);transition:transform .15s,background .25s,color .25s}
+button:hover:not(:disabled){transform:translateY(-2px);color:var(--inko)}button:active:not(:disabled){transform:scale(.96)}button:disabled{opacity:.4;cursor:default}
+button.on{background:var(--karim);color:#fff}button#bK:not(.on){background:var(--inko);color:#fff}
+.board{display:grid;gap:12px;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));margin-bottom:14px}
+.col{background:var(--card);border:2px solid transparent;border-radius:26px;padding:16px 12px 12px;min-height:250px;box-shadow:var(--sh),inset 0 6px 0 var(--c);transition:transform .25s,background .25s,border-color .25s}
+.col.over{border-color:var(--c);background:color-mix(in srgb,var(--c) 9%,var(--card));transform:scale(1.015)}
+.col h2{margin:6px 0 12px;font-size:15px;font-weight:900;color:var(--c);display:flex;justify-content:space-between;align-items:center}
+.col h2 span:last-child{background:var(--c);color:#fff;border-radius:999px;padding:2px 11px;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 13px 4px 4px;font-size:13px;font-weight:700;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .15s,box-shadow .15s}
+.chip:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(3,70,160,.15)}
+.av{width:25px;height:25px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900}
+.chip.drag{opacity:.2}.chip.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.ghost{position:fixed;z-index:99;pointer-events:none;box-shadow:0 14px 30px rgba(0,0,0,.3);transform:rotate(-5deg) scale(1.1);background:var(--card)}
+.scn{background:var(--card);border-radius:22px;padding:16px 22px;font-size:14px;line-height:1.7;box-shadow:var(--sh),inset 6px 0 0 #FFC845}
+.scn h3{margin:0 0 4px;font-size:16px;font-weight:900}
+@media(max-width:800px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:18px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><div><h1>LSP Election Simulator</h1><div class="sub">AIESEC · drag voters between candidates</div></div><div class="leader" id="leader"></div></div>
+<div class="stats" id="stats"></div>
+<div class="tiles" id="tiles"></div>
+<div class="btns">
+<button id="bK"></button><button id="bR">Reset</button><button id="bRand">Randomize undecided</button><button id="bC">Clear all</button><button id="bU">Undo</button><button id="bD">Redo</button>
+</div>
+<div class="board" id="board"></div>
+<div class="scn" id="scn"></div>
+<script>
+const NAMES=["Eldar","Dimash","Ramchik","Arsen","Beksh","Adeliya","Aisha","Karim","Dina","Taimas","Sabina","Zhansiko","Amira","Sanzhar","Elnur","Tomi","Ali","Leila","Gera","Sultik","Lokalka","Zhanik","Asem","Akzere","Dias","Shera","Darkhan"];
+const INIT={anel:["Dimash","Eldar","Dina","Amira","Taimas","Ali","Zhansiko"],inko:["Arsen","Sabina","Lokalka"]};
+const C={anel:{n:"ANEL",e:'<i class="dot"></i>',c:"var(--anel)"},inko:{n:"INKO",e:'<i class="dot"></i>',c:"var(--inko)"},karim:{n:"KARIM",e:'<i class="dot"></i>',c:"var(--karim)"},und:{n:"UNDECIDED",e:'<i class="dot"></i>',c:"var(--und)"}};
+const T=NAMES.length;
+let a,karimOn=false,undo=[],redo=[],last=null;
+function initState(){a={};NAMES.forEach(n=>a[n]="und");for(const k in INIT)INIT[k].forEach(n=>a[n]=k)}
+initState();
+const $=id=>document.getElementById(id);
+const cands=()=>karimOn?["anel","inko","karim"]:["anel","inko"];
+const cnt=k=>NAMES.filter(n=>a[n]===k).length;
+function apply(moves,rev){moves.forEach(m=>a[m.n]=rev?m.f:m.t)}
+function commit(moves){moves=moves.filter(m=>m.f!==m.t);if(!moves.length)return;apply(moves);undo.push(moves);redo=[];last=moves.length===1?moves[0].n:null;render()}
+function move(n,to){if(to==="karim"&&!karimOn)return;commit([{n,f:a[n],t:to}])}
+function render(){
+const cs=cands(),und=cnt("und"),dec=T-und,counts=cs.map(k=>cnt(k)),max=Math.max(...counts);
+const leaders=cs.filter(k=>cnt(k)===max);
+let txt,col="rgba(255,255,255,.2)";
+if(max===0)txt="CURRENT LEADER: NONE YET";else if(leaders.length>1)txt="CURRENT LEADER: TIE";else{txt="CURRENT LEADER: "+C[leaders[0]].n;col=C[leaders[0]].c}
+$("leader").textContent=txt;$("leader").style.background=col;
+$("stats").innerHTML=`<div class="stat">TOTAL POTENTIAL VOTERS<b>${T}</b></div><div class="stat">CURRENTLY DECIDED<b>${dec} / ${T}</b></div><div class="stat">UNDECIDED<b>${und}</b></div>`;
+$("tiles").innerHTML=cs.map(k=>{const v=cnt(k),p=Math.round(v/T*1000)/10;
+return `<div class="tile ${max>0&&v===max&&leaders.length===1?"win":""}" style="--c:${C[k].c}"><div class="row"><span>${C[k].e} ${C[k].n}</span><span>${v} votes — ${p}%</span></div><div class="bar"><i style="width:${p}%"></i></div></div>`}).join("");
+const ks=[...cs,"und"];$("board").style.setProperty("--n",ks.length);
+$("board").innerHTML=ks.map(k=>{const m=NAMES.filter(n=>a[n]===k);
+return `<div class="col" data-k="${k}" style="--c:${C[k].c}"><h2><span>${C[k].e} ${C[k].n}</span><span>${m.length}</span></h2><div class="chips">${m.map(n=>`<div class="chip ${n===last?"pop":""}" data-n="${n}" style="--c:${C[k].c}"><span class="av">${n[0]}</span>${n}${n==="Karim"?" ★":""}</div>`).join("")}</div></div>`}).join("");
+$("bK").textContent=karimOn?"DISABLE KARIM":"ENABLE KARIM";$("bK").className=karimOn?"on":"";
+$("bU").disabled=!undo.length;$("bD").disabled=!redo.length;
+let s=cs.map(k=>`${C[k].n}: ${cnt(k)}`).join("<br>")+`<br>UNDECIDED: ${und}<br><br>`;
+if(max===0)s+=`No votes assigned yet. The first candidate to get a vote takes the lead.`;
+else if(leaders.length>1)s+=`${leaders.map(k=>C[k].n).join(" and ")} are tied at ${max}. One more vote for any of them breaks the tie.`;
+else{const L=leaders[0];s+=cs.filter(k=>k!==L).map(k=>{const need=max-cnt(k)+1;return `${C[k].n} needs ${need} additional vote${need>1?"s":""} to move ahead of ${C[L].n}${need>und?" (more than the undecided voters left, so they would have to switch from others)":""}.`}).join("<br>")}
+$("scn").innerHTML=`<h3>SCENARIO</h3>${s}`;
+last=null;
+}
+// pointer-based drag (mouse + touch)
+let drag=null;
+$("board").addEventListener("pointerdown",e=>{const c=e.target.closest(".chip");if(!c||e.button>0)return;drag={c,n:c.dataset.n,x:e.clientX,y:e.clientY,g:null}});
+window.addEventListener("pointermove",e=>{if(!drag)return;
+if(!drag.g){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<5)return;
+const g=drag.c.cloneNode(true);g.classList.add("ghost");document.body.appendChild(g);drag.g=g;drag.c.classList.add("drag");drag.w=g.offsetWidth/2;drag.h=g.offsetHeight/2}
+drag.g.style.left=e.clientX-drag.w+"px";drag.g.style.top=e.clientY-drag.h+"px";
+const col=document.elementFromPoint(e.clientX,e.clientY)?.closest(".col");
+document.querySelectorAll(".col").forEach(x=>x.classList.toggle("over",x===col))});
+window.addEventListener("pointerup",e=>{if(!drag)return;const d=drag;drag=null;if(!d.g)return;
+const col=document.elementFromPoint(e.clientX,e.clientY)?.closest(".col");d.g.remove();
+if(col)move(d.n,col.dataset.k);else render()});
+window.addEventListener("pointercancel",()=>{if(drag){drag.g&&drag.g.remove();drag=null;render()}});
+$("bK").onclick=()=>{if(karimOn){const m=NAMES.filter(n=>a[n]==="karim").map(n=>({n,f:"karim",t:"und"}));karimOn=false;if(m.length)commit(m);else render()}else{karimOn=true;render()}};
+$("bR").onclick=()=>{const m=[];const o={};NAMES.forEach(n=>o[n]="und");for(const k in INIT)INIT[k].forEach(n=>o[n]=k);NAMES.forEach(n=>m.push({n,f:a[n],t:o[n]}));commit(m)};
+$("bC").onclick=()=>commit(NAMES.map(n=>({n,f:a[n],t:"und"})));
+$("bRand").onclick=()=>{const cs=cands();commit(NAMES.filter(n=>a[n]==="und").map(n=>({n,f:"und",t:cs[Math.floor(Math.random()*cs.length)]})))};
+$("bU").onclick=()=>{const m=undo.pop();if(!m)return;apply(m,true);redo.push(m);render()};
+$("bD").onclick=()=>{const m=redo.pop();if(!m)return;apply(m,false);undo.push(m);render()};
+render();
+</script>
+</body>
+</html>
